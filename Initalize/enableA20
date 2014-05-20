@@ -1,0 +1,38 @@
+enableA20:
+event "Enabling A20"
+
+@@:
+in al, 0x64
+test al, 2
+jnz @b
+mov al, 0xAD
+out 0x64, al
+
+@@:
+in al, 0x64
+test al, 2
+jnz @b
+mov al, 0xD0
+out 0x64, al
+
+@@:
+in al, 0x64
+test al, 1
+jz @b
+in al, 0x60
+mov bl, al
+
+@@:
+in al, 0x64
+test al, 2
+jnz @b
+mov al, bl	
+or al, 2
+out 0x60, al
+
+@@:
+in al, 0x64
+test al, 2
+jnz @b
+mov al ,0xAE
+out 0x64, al

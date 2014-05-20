@@ -1,0 +1,20 @@
+remapIRQ:
+event "Remapping Interrupt Requests"
+
+mov al, 0x11  ; command to tell pic we are initalizing with 4 commands
+out 0x20, al
+out 0xA0, al
+mov al, 0x20  ; remap first pic to int 32
+out 0x21, al
+mov al, 0x28  ; remap second pic to int 40
+out 0xA1, al
+mov al, 0x04  ; tell first pic to map second pic to int 2
+out 0x21, al
+mov al, 0x02  ; tell second pic its mapped to int 2 of first pic
+out 0xA1, al
+mov al, 0x01  ; enable x86-64 mode
+out 0x21, al
+out 0xA1, al
+mov al, 0     ; unmask all irqs
+out 0x21, al
+out 0xA1, al

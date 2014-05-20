@@ -1,0 +1,5 @@
+macro Cinc file, log
+{
+LOGGING = log or LOG_ALL
+include file
+}

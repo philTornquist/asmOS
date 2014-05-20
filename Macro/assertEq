@@ -1,0 +1,23 @@
+macro assertEq reg, actual, msg
+{
+local .passed
+	push eax
+	mov eax, reg
+	cmp reg, actual
+	je .passed
+	
+	event "TEST FAILED: "##msg
+	print eax
+	write " != "
+	print actual
+	writeln ""
+	
+	pop eax
+	jmp stopSystem
+	
+.passed:
+	pop eax
+	event "TEST PASSED: "##msg
+	
+
+}

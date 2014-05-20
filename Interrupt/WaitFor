@@ -1,0 +1,41 @@
+WaitForHandler: ; eax=threadtowaitfor tid_low ebx=tid_high
+cli
+event "WAITFOR"
+reginfo eax, "Waiting TID_Low"
+reginfo ebx, "Waiting TID_High"
+
+call GetThreadWithTID
+reginfo eax, "Thread"
+cmp eax, 0
+jne .blockThread
+event "TID not found"
+iret
+
+.blockThread:
+
+mov ebp, esp
+
+mov ebx, [running_thread]
+mov ecx, [eax+Thread.end_waiting]
+mov [ecx+Thread.next], ebx
+mov [eax+Thread.end_waiting], ebx
+
+mov dx, [eax+Thread.block]
+cmp dx, 0x52
+jne .threadNotSignalBlocked
+mov [eax+Thread.block], word 0
+
+push eax
+push ebx
+mov ebx, eax
+call QueueThread
+pop ebx
+pop eax
+
+
+.threadNotSignalBlocked:
+displayQueue [eax+Thread.waiting], [eax+Thread.end_waiting]
+mov eax, [ebx+Thread.next]
+mov [ebx+Thread.next], dword 0
+mov cx, 0x53
+jmp stopThread

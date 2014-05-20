@@ -1,0 +1,129 @@
+CreatThread_EAX_EBX_ECX_EDX_edi_esi_ebp_esp: ; eax=thread entry point ecx=options
+
+event "Creating Thread"
+
+mov edx, [free_thread_data_stack]	
+sub edx, 2									; Move to value on top of stack
+mov [free_thread_data_stack], edx
+movzx ebx, word [edx]						; Load the word value for the index of new thread
+shl ebx, 9
+add ebx, THREAD_DATA
+
+mov [ebx+Thread.regstate], dword 0
+mov [ebx+Thread.stack],  dword 0x1000
+mov [ebx+Thread.flags], dword 1000000000b
+mov [ebx+Thread.instruction], eax
+mov [ebx+Thread.block], word 0
+mov [ebx+Thread.priority], word 1
+mov [ebx+Thread.next], dword 0
+mov [ebx+Thread.waiting], dword 0
+lea eax, [ebx+Thread.waiting]
+mov [ebx+Thread.end_waiting], eax
+
+;  Set threads page directory
+test ecx, 1
+jnz .createNewPageDirectory
+mov edx, [running_thread]
+mov ecx, [edx+Thread.pagedir]
+
+reginfo ecx, "Sharing page dir"
+jmp .createdPageDirectory
+
+.createNewPageDirectory:
+;---Create new page directory---
+push ebx
+
+;ecx>thread page directiry
+call AllocPage
+mov ecx, eax
+push ecx
+
+;eax>thread page table
+call AllocPage
+pop ecx
+
+; Add dirctory to temp page slot
+mov edx, ecx
+or edx, 00000111b
+mov [TEMP_ENTRY], edx
+invlpg [T]
+memset 0, T, T+0x1000
+
+; Install Kernel page table
+mov edx, PAGE_TABLE
+or edx, 00000111b
+mov [T + (KERNEL_VIRTUAL_PAGE*4)], edx
+
+; Install Thread data page table
+mov edx, THREAD_TABLE
+or edx, 00000111b
+mov [T + (THREAD_VIRTUAL_PAGE*4)], edx
+
+; Install thread page
+mov edx, eax
+or edx, 00000111b
+mov [T], edx
+
+; Set thread page to temp page slot
+mov [TEMP_ENTRY], edx
+invlpg [T]
+memset 0, T, T+0x1000
+
+;--Install thread stack--
+; Allocate new page to be the stack
+;push ecx
+;call AllocPage
+;pop ecx
+
+; Install it to the page directory mapped to 0x00000000
+;or eax, 00000111b
+;mov [T], eax
+
+; Save the page directory to the thread
+pop ebx
+
+.createdPageDirectory:
+mov [ebx+Thread.pagedir], ecx
+
+;  Set the threads TID
+mov ecx, [last_tid]
+add ecx, 1
+mov [last_tid], ecx
+mov [ebx+Thread.tid_low], ecx
+mov edx, [last_tid+4]
+adc edx, 0
+mov [last_tid+4], edx
+mov [ebx+Thread.tid_high], edx
+
+;  Add thread to tree
+mov esi, tid_search_tree
+
+.treeAddLoop:
+mov eax, [esi]
+cmp eax, 0
+je .addThread
+cmp edx, [eax+Thread.tid_high]
+jg .treeGreater
+jl .treeLess
+cmp ecx, [eax+Thread.tid_low]
+jg .treeGreater
+jl .treeLess
+event "TID already in use!"
+jmp stopSystem
+
+.treeGreater:
+lea esi, [eax+Thread.child_right]
+jmp .treeAddLoop
+
+.treeLess:
+lea esi, [eax+Thread.child_left]
+jmp .treeAddLoop
+
+.addThread:
+mov [esi], ebx
+and esi, not(512-1)
+mov [ebx+Thread.parent], esi
+
+mov eax, ebx
+printThread
+ret

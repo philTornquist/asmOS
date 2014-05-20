@@ -1,0 +1,27 @@
+macro displayQueue start_queue, end_queue
+{
+local .enddisplay
+push ebx
+push eax
+mov eax, start_queue
+push eax
+mov eax, [esp+4]
+mov ebx, end_queue
+pop eax
+cmp eax, 0
+je .enddisplay
+
+@@:
+reginfo eax, "->"
+cmp eax, ebx
+mov eax, [eax+Thread.next]
+je @f
+jmp @b
+
+@@:
+.enddisplay:
+xor eax, eax
+reginfo eax, "Empty Queue"
+pop eax
+pop ebx
+}

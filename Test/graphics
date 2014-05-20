@@ -1,0 +1,22 @@
+testGraphics:
+
+mov cl, 15
+call DrawColor
+
+mov esi, welcomeMSG
+mov cx, 15
+mov ebx, 270
+mov edx, 8
+call DrawString
+
+mov eax, KERNEL_VIRTUAL
+mov cx, 15
+mov ebx, 270
+mov edx, 16
+call DrawNumber
+
+mov eax, $
+mov cx, 15
+mov ebx, 270
+mov edx, 24
+call DrawNumber

@@ -1,0 +1,74 @@
+lockTest:
+mov esi, .threadDesc
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+mov [.resTID_low], eax
+mov [.resTID_high], ebx
+
+mov ecx, 0
+mov eax, .consumer
+int INT_START_THREAD
+
+mov ecx, 0
+mov eax, .consumer
+int INT_START_THREAD
+
+mov ecx, 0
+mov eax, .consumer
+int INT_START_THREAD
+
+.resource:
+event "Allowing Access"
+
+mov esi, $
+mov ebx, 11b
+int INT_SIGNAL
+
+event "Granted Access"
+reginfo eax, "To TID Low"
+reginfo ebx, "To TID High"
+
+int INT_WAIT
+jmp .resource
+
+.consumer:
+mov eax, [.resTID_low]
+mov ebx, [.resTID_high]
+int INT_WAIT
+
+event "Using Resource"
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+
+event "Still Resource 1"
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+
+event "Still Resource 2"
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+
+event "Still Resource 3"
+
+mov ebx, 00b
+int INT_SIGNAL
+
+event "Freed Resource"
+
+jmp .consumer
+
+
+
+.threadDesc db "lockTest", 0
+
+.resTID_low dd 0 
+.resTID_high dd 0
+

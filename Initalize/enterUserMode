@@ -1,0 +1,15 @@
+enterUserMode:
+
+event "Entering User Mode"
+jmp V+.over
+
+.over:
+
+sti
+;in al, 0x60   ; weird keyboard thing in bochs. reading from the buffer somehow enables keyboard interrupts
+mov ecx, 1
+mov eax, STARTING_APP
+int 0x4F
+
+cli
+hlt

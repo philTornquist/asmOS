@@ -1,0 +1,32 @@
+KeyboardHandler:
+cli
+event "KEYBOARD"
+
+pusha
+lea ebp, [esp+8*4]
+
+xor eax, eax
+in al, 0x60
+test al, 0x80
+jne .done
+
+movzx ecx, [keyboardConvert+eax]
+
+push eax
+mov cx, 15
+mov ebx, 0
+mov edx, 0
+call DrawChar
+pop eax
+
+reginfo eax, "keyboard code"
+
+.done:
+mov al, 0x20
+out 0x20, al	; Send EOI acknolegement the interrupt has been handled
+out 0xA0, al
+
+popa
+iret
+
+keyboardConvert db  0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 8, 9,'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 13, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 27,'`', 0, 0,'\', 'z', 'x', 'c', 'v', 'b', 'n','m', ',', '.', '/', 0, 0, 0, 0, ' ', ' '

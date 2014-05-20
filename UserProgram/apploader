@@ -1,0 +1,62 @@
+apploader:
+event "Entered User Mode"
+
+mov esi, .threadDesc
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+mov esp, 0x500
+
+mov cl, 15
+call DrawColor
+
+mov esi, usermodeMSG
+mov edx, 0
+mov ebx, 0
+call DrawString
+
+
+
+
+
+event "Loading Apps"
+mov ecx, 1
+mov eax, testLoader
+int INT_START_THREAD
+
+
+mov ecx, 1
+mov eax, KeyboardManager
+int INT_START_THREAD
+
+mov ecx, 1
+mov eax, terminal
+int INT_START_THREAD
+
+mov ecx, 1
+mov eax, shell
+int INT_START_THREAD
+mov ecx, 1
+mov eax, shell
+int INT_START_THREAD
+
+
+
+
+.loop:
+mov eax, [timer]
+mov cx, 15
+mov ebx, 0
+mov edx, 8
+call DrawNumber
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+mov ebx, 0
+int INT_SIGNAL
+jmp .loop
+
+
+.threadDesc db "Apploader", 0

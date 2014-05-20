@@ -1,0 +1,47 @@
+memoryInit:
+event "Initalizing Memory Map"
+
+mov ecx, 0x10000							; 128kB of MEMORY_MANAGER_BITMAP
+
+.clearBitmap:
+mov [MEMORY_MANAGER_BITMAP +ecx -4], dword 0
+sub ecx, 4
+jnz .clearBitmap
+
+.freeAvailablePages:
+mov dx, [memory_map_count]					; Number of entries
+mov esi, -24								; Offset pointer
+
+.memLoop:
+add esi, 24
+dec dx
+js .done
+cmp [MEMORY_MAP_POINTER+esi+16], dword 1	; Test for valid memory segment
+jne .memLoop
+mov eax, [MEMORY_MAP_POINTER+esi]			; Starting pointer
+mov ecx, [MEMORY_MAP_POINTER+esi+8]			; Size of memory block
+
+reginfo eax, "->"
+reginfo ecx, "Available"
+
+push esi
+push edx
+
+.entryLoop:
+sub ecx, 0x1000
+cmp ecx, 0
+jle .entryEnd								; No more memory left in the block
+push eax
+push ecx
+call FreePage								; Mark the page as free
+pop ecx
+pop eax
+add eax, 0x1000								; Advance pointer to the next page
+jmp .entryLoop
+
+.entryEnd:
+pop edx
+pop esi
+jmp .memLoop
+
+.done:

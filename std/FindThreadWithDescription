@@ -1,0 +1,45 @@
+FindThreadWithDescription:
+
+push ecx
+push esi
+
+mov eax, 0
+mov ebx, 0
+jmp .startSearch
+
+.findThread:
+add esp, 8
+
+.startSearch:
+push eax
+push ebx
+mov edi, .tempDesc
+mov cl, 1
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+cmp eax, 0
+jne .validTID
+cmp ebx, 0
+jne .validTID
+
+add esp, 8
+pop esi
+pop ecx
+ret
+
+.validTID:
+mov edi, .tempDesc
+mov esi, [esp + 8]
+push eax
+call string_compare
+pop eax
+
+jnc .findThread
+pop ebx
+pop eax
+pop esi
+pop ecx
+ret
+
+.tempDesc: times 400 db 0

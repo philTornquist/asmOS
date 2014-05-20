@@ -1,0 +1,31 @@
+testLoader:
+mov esi, .threadDesc
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+mov eax, [running_thread]
+mov ecx, [eax+Thread.tid_low]
+mov edx, [eax+Thread.tid_high]
+call GetThreadWithTID
+assertEq eax, [running_thread], "TID Get"
+
+mov ecx, 1
+mov eax, VirtualMemoryTest
+int INT_START_THREAD
+
+mov ecx, 1
+mov eax, lockTest
+int INT_START_THREAD
+
+mov ecx, 1
+mov eax, shareTest
+int INT_START_THREAD
+
+.loop:
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+jmp .loop
+
+.threadDesc db "Test Loader", 0

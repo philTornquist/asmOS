@@ -1,0 +1,29 @@
+macro event msg
+{
+	local .kernel
+	local .done
+	
+	timestamp
+	
+	if _MODE = 32
+	push eax
+	mov ax, cs
+	cmp ax, 0x08
+	pop eax
+	je .kernel
+	write " |"
+	print [running_thread]
+	write "| "
+	jmp .done
+	
+	.kernel:
+	write " | KERNEL | "
+	end if
+	
+	if _MODE = 16
+	write " |  INIT  | "
+	end if
+	
+	.done:
+	writeln msg
+}

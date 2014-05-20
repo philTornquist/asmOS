@@ -1,0 +1,12 @@
+macro memset value, start, end
+{
+push eax
+mov eax, start
+@@:
+mov [eax], byte value
+inc eax
+cmp eax, dword end
+jl @b
+
+pop eax
+}

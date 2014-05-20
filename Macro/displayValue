@@ -1,0 +1,10 @@
+macro displayValue val
+{
+	repeat 8
+	    d = '0' + val shr (32-%*4) and 0Fh
+	    if d > '9'
+	        d = d + 'A'-'9'-1
+	    end if
+	    display d
+	end repeat
+}

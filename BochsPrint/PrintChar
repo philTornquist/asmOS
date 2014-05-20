@@ -1,0 +1,5 @@
+PrintChar_eax_ebx_ecx_edx_edi_esi_ebp_esp: ;  al=character
+
+out 0xE9, al
+
+ret

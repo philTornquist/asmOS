@@ -1,0 +1,51 @@
+InstallHandler:
+cli
+event "Install Handler"
+reginfo eax, "Int Number"
+reginfo esi, "Handler Address"
+
+mov ebp, esp
+
+cmp eax, 0
+je .ret
+
+;edx>page table index
+mov edx, esi
+;ecx>page directory index
+mov ecx, esi
+
+shr edx, 12
+and edx, 0x3FF
+
+shr ecx, 22
+
+mov ebx, cr3
+or ebx, 00000000111b
+mov [TEMP_ENTRY], ebx
+invlpg [T]
+
+mov ebx, [T+ecx*4]
+cmp ebx, 0
+je .ret
+mov [TEMP_ENTRY], ebx
+invlpg [T]
+
+mov ebx, [T+edx*4]
+cmp ebx, 0
+je .ret
+
+and ebx, (not 111111111111b)
+
+reginfo ebx, "Handler Page"
+
+mov [handlers + eax*8], ebx
+
+mov ebx, [running_thread]
+mov [handlers + eax*8 + 4], ebx
+
+.ret:
+mov ebx, [running_thread]
+mov eax, [ebx+Thread.next]
+mov [ebx+Thread.next], dword 0
+mov cx, BLOCK_INTERRUPT
+jmp stopThread

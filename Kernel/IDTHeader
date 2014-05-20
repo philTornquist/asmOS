@@ -1,0 +1,4 @@
+__IDT_Header:
+
+dw __IDT__END - __IDT__START - 1
+dd __IDT__START

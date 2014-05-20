@@ -1,0 +1,6 @@
+macro reginfo reg, msg
+{
+write ".           "
+print reg
+writeln ": "#msg
+}

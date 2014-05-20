@@ -1,0 +1,90 @@
+DrawChar_EAX_EBX_eCX_EDX_EDI_esi_ebp_esp: ;  al=character, ebx=x, edx=y, ch=color, cl=backcolor
+
+mov edi, ebx
+
+movzx ebx, al
+
+mov eax, 320			; compute startimg address in edi
+mul edx
+
+add edi, eax
+add edi, VGA_MEMORY
+
+.testLower:
+cmp ebx, 97  			; convert ascii code into font offset
+jl .testUpper
+sub ebx, 97
+jmp .gotIndex
+
+.testUpper:
+cmp ebx, 65
+jl .testNumber
+sub ebx, 65
+jmp .gotIndex
+
+.testNumber:
+cmp ebx, 48
+jl .testSpace
+sub ebx, 22
+jmp .gotIndex
+
+.testSpace:
+add ebx, 4
+
+.gotIndex:
+mov eax, ebx			; compute absolute address for font character
+shl ebx, 3
+sub ebx, eax
+add ebx, FONT
+xor eax, eax
+
+.loop:
+mov al, [ebx]  ; plot pixels
+
+.bit1:
+mov [edi], cl
+
+.bit2:	
+mov [edi+1], cl
+test al, 01000000b
+jz .bit3
+mov [edi+1], ch
+
+.bit3:
+mov [edi+2], cl
+test al, 00100000b
+jz .bit4
+mov [edi+2], ch
+
+.bit4:
+mov [edi+3], cl
+test al, 00010000b
+jz .bit5
+mov [edi+3], ch
+
+.bit5:
+mov [edi+4], cl
+test al, 00001000b
+jz .bit6
+mov [edi+4], ch
+
+.bit6:
+mov [edi+5], cl
+test al, 00000100b
+
+jz .bit7
+mov [edi+5], ch
+
+.bit7:
+mov [edi+6], cl
+
+.loopback:
+inc ah
+cmp ah, 7
+jge .done
+add edi, 320
+inc ebx
+jmp .loop
+
+.done:
+ret

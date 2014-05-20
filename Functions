@@ -1,0 +1,19 @@
+macro setoffset O
+{
+PrintNumber     =O+ PrintNumber_eax_EBX_ECX_EDX_edi_ESI_ebp_esp
+PrintString     =O+ PrintString_EAX_ebx_ecx_edx_edi_ESI_ebp_esp
+PrintChar       =O+   PrintChar_eax_ebx_ecx_edx_edi_esi_ebp_esp
+
+DrawChar        =O+    DrawChar_EAX_EBX_eCX_EDX_EDI_esi_ebp_esp
+DrawColor       =O+   DrawColor_eax_EBX_eCL_edx_edi_esi_ebp_esp
+DrawNumber      =O+  DrawNumber_eax_EBX_ECX_EDX_EDI_esi_ebp_esp
+DrawRect        =O+    DrawRect_EAX_EBX_ECX_EDX_EDI_ESI_ebp_esp
+DrawString      =O+  DrawString_EAX_EBX_eCX_EDX_EDI_ESI_ebp_esp
+
+AllocPage       =O+   AllocPage_EAX_EBX_eCL_EDX_edi_esi_ebp_esp
+FreePage        =O+   FreePage_EAX_EBX_ECX_EDX_edi_esi_ebp_esp
+
+CreateThread    =O+ CreatThread_EAX_EBX_ECX_EDX_edi_esi_ebp_esp
+StartThread     =O+ StartThread_eax_EBX_ecx_edx_edi_esi_ebp_esp
+QueueThread     =O+ QueueThread_eax_EBX_ECX_edx_edi_esi_ebp_esp
+}

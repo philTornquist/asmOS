@@ -1,0 +1,2 @@
+tar cf ../SAVES/OS/$(date +%y.%m.%d_%T).tar ../os
+

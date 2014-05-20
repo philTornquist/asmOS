@@ -1,0 +1,176 @@
+DebugHandler:
+cli
+event "DEBUG EXCEPTION"
+jmp $
+
+NonMaskableInterruptHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, nonmaskableinterruptExceptionMSG
+call DrawString
+jmp $
+
+BreakpointHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, breakpointExceptionMSG
+call DrawString
+jmp $
+
+IntoDetectedOverflowHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, intodetectedoverflowExceptionMSG
+call DrawString
+jmp $
+
+OutOfBoundsHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, outofboundsExceptionMSG
+call DrawString
+jmp $
+
+InvalidOpcodeHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, invalidopcodeExceptionMSG
+call DrawString
+jmp $
+
+NoCoprocessorHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, nocoprocessorExceptionMSG
+call DrawString
+jmp $
+
+DoubleFaultHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, doublefaultExceptionMSG
+call DrawString
+jmp $
+
+CoprocessorSegmentOverrunHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, coprocessorsegmentoverrunExceptionMSG
+call DrawString
+jmp $
+
+BadTSSHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, badtssExceptionMSG
+call DrawString
+jmp $
+
+SegmentNotPresentHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, segmentnotpresentExceptionMSG
+call DrawString
+jmp $
+
+StackFaultHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, stackfaultExceptionMSG
+call DrawString
+pop eax
+jmp $
+
+GeneralProtectionFaultHandler:
+cli
+event "GENERAL PROTECTION FAULT"
+iretPrint
+jmp stopSystem
+
+UnknownInterruptHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, unknowninterruptExceptionMSG
+call DrawString
+jmp $
+
+CoprocessorFaultHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, coprocessorfaultExceptionMSG
+call DrawString
+jmp $
+
+AlignmentCheckHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, alignmentcheckExceptionMSG
+call DrawString
+jmp $
+
+MachineCheckHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, machinecheckExceptionMSG
+call DrawString
+jmp $
+
+ReservedExceptionHandler:
+cli
+mov ebx, 1
+mov edx, 24
+mov cl, 15
+mov ch, 0
+mov esi, reservedExceptionMSG
+call DrawString
+jmp $
+
+INT0x27:
+cli
+event "INT 0x27"
+iret

@@ -1,0 +1,46 @@
+SleepHandler:
+cli
+event "SLEEP"
+
+mov ebp, esp
+
+mov ebx, [running_thread]
+mov [ebx+Thread.sleepTil], eax
+
+mov ecx, sleep_queue-Thread.next
+mov edx, [sleep_queue]
+cmp edx, 0
+jne .haveSleepingThreads
+mov [sleep_queue], ebx
+mov eax, [ebx+Thread.next]
+mov [ebx+Thread.next], dword 0
+mov cx, 0x51
+jmp stopThread
+
+.haveSleepingThreads:
+cmp eax, [edx+Thread.sleepTil]
+jl .foundPlaceForThread
+mov ecx, edx
+mov edx, [edx+Thread.next]
+cmp edx, 0
+je .foundPlaceForThread
+jmp .haveSleepingThreads
+
+.foundPlaceForThread:
+
+mov eax, [ebx+Thread.next]
+mov edx, [ecx+Thread.next]
+mov [ecx+Thread.next], ebx
+mov [ebx+Thread.next], edx
+
+@@:
+mov edx, [ecx+Thread.next]
+cmp edx, 0
+je @f
+mov ecx, edx
+jmp @b
+@@:
+displayQueue [sleep_queue], ecx
+
+mov cx, 0x51
+jmp stopThread

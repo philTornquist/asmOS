@@ -1,0 +1,35 @@
+stopThread: ; eax=next thread ebx=currentProcess ebp=iret stack location cx=block reason
+
+event "Stopping Thread"
+reginfo ebx, "Thread"
+reginfo ecx, "Reason"
+
+mov edx, [ebp+Iret.stack]
+mov [ebx+Thread.stack], edx
+mov edx, [ebp+Iret.flags]
+mov [ebx+Thread.flags], edx
+mov edx, [ebp+Iret.eip]
+mov [ebx+Thread.instruction], edx
+
+mov [ebx+Thread.block], cx
+cmp eax, 0
+jz .stall
+
+call StartThread
+iret
+
+.stall:
+mov [running_thread], dword 0
+mov [running_queue_end], running_thread-Thread.next
+event "STALL"
+@@:
+cli
+mov eax, 'H'
+mov cl, 9
+mov ch, 0
+mov ebx, 312
+mov edx, 0
+call DrawChar
+sti
+hlt
+jmp @b

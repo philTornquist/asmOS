@@ -1,0 +1,124 @@
+StartHandler
+event "KEYBOARD"
+
+in al, 0x60
+reginfo eax, "keyboard code"
+test al, 0x80
+jne .done
+
+movzx ecx, [keyboard_convert+eax]
+
+push eax
+call PrintChar
+pop eax
+
+reginfo eax, "keyboard code"
+
+.done:
+mov al, 0x20
+out 0x20, al	; Send EOI acknolegement the interrupt has been handled
+
+ret
+
+keyboard_convert db  0, 27, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 8, 9,'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', 13, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 27,'`', 0, 0,'\', 'z', 'x', 'c', 'v', 'b', 'n','m', ',', '.', '/', 0, 0, 0, 0, ' ', ' '
+
+keyboard_data:
+char_buffer:
+db "key buffer",10,13
+db "testing another string thing", 0
+
+end_buffer dd char_buffer
+
+EndHandler
+
+
+
+
+
+KeyboardManager:
+
+;  Data location for data in handler
+virtual at ($ and not 111111111111b) or (keyboard_data and 111111111111b)
+.char_buffer: times 13 db 0
+.end_buffer dd 0
+end virtual
+
+mov esi, .threadDesc
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+; Start page sharing thread
+mov ecx, 0
+mov eax, .sharingThread
+int INT_START_THREAD 
+
+;AddHandler 0x22
+
+push dword .char_buffer
+
+.copyInput:
+event "Copying Input"
+reginfo [.last_page], "Last Page"
+
+mov ebx, 0x1230000
+mov esi, [esp]
+.loopAllPages:
+add ebx, 0x1000
+cmp ebx, [.last_page]
+jg .endLoopingPages
+mov esi, [esp]
+
+mov cl, 9
+@@:
+push ecx
+lodsb
+call write_byte
+pop ecx
+dec cl
+jne @b
+
+jmp .loopAllPages
+.endLoopingPages:
+
+mov [esp], esi
+;mov eax, 0
+;int INT_INSTALL
+mov eax, [timer]
+add eax, 0x2000
+int INT_SLEEP
+jmp .copyInput
+
+
+
+.sharingThread:
+mov esp, 0x500
+event "Keyboard Accepting Requests"
+
+mov esi, .shareThreadDesc
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+event "Saved Description"
+
+.getRequest:
+mov ecx, 0
+mov esi, .getRequest
+int INT_SHARE_REQUEST
+
+event "Received Keyboard Request"
+
+mov edi, [.last_page]
+add edi, 0x1000
+mov [.last_page], edi
+mov ecx, 2
+int INT_SHARE_REQUEST
+jmp .getRequest
+
+
+
+
+.last_page dd 0x1230000
+
+.threadDesc db "Keyboard", 0
+.shareThreadDesc db "Keyboard Ask", 0

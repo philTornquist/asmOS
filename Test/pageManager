@@ -1,0 +1,26 @@
+testPageManager:
+
+call AllocPage
+assertRegEquals eax, 0x0000, "PageManager Result 1"
+mov eax, [MEMORY_MANAGER_BITMAP]
+assertRegEquals eax, 0xFFFFFFFE, "PageManager Result 2"
+
+call AllocPage
+assertRegEquals eax, 0x1000, "PageManager Result 3"
+mov eax, [MEMORY_MANAGER_BITMAP]
+assertRegEquals eax, 0xFFFFFFFC, "PageManager Result 4"
+
+call AllocPage
+assertRegEquals eax, 0x2000, "PageManager Result 5"
+mov eax, [MEMORY_MANAGER_BITMAP]
+assertRegEquals eax, 0xFFFFFFF8, "PageManager Result 6"
+
+call AllocPage
+assertRegEquals eax, 0x3000, "PageManager Result 7"
+mov eax, [MEMORY_MANAGER_BITMAP]
+assertRegEquals eax, 0xFFFFFFF0, "PageManager Result 8"
+
+mov eax, 0x2000
+call FreePage
+mov eax, [MEMORY_MANAGER_BITMAP]
+assertRegEquals eax, 0xFFFFFFF4, "PageManager Result 9"

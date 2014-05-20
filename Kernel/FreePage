@@ -1,0 +1,28 @@
+FreePage_EAX_EBX_ECX_EDX_edi_esi_ebp_esp: ; eax-physical address
+
+event "Freeing page"
+
+reginfo eax, "Page"
+
+; Divide by page size
+shr eax, 12
+
+; Which bit in bitmap
+mov ecx, eax
+and ecx, 11111b
+
+; Load bitmap
+shr eax, 5
+mov ebx, [MEMORY_MANAGER_BITMAP +eax*4]
+
+; Create mask
+mov edx, 1b
+rol edx, cl
+
+; Mask and store
+or ebx, edx
+mov [MEMORY_MANAGER_BITMAP +eax*4], ebx
+
+ret
+
+; TODO: Implement superpage lookup

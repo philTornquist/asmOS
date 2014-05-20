@@ -1,0 +1,16 @@
+macro timestamp
+{
+if _MODE = 32
+
+write "["
+print [timer]
+write "]"
+
+end if
+
+if _MODE = 16
+
+write "[00000000]"
+
+end if
+}

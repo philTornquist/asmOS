@@ -1,0 +1,132 @@
+shell:
+
+;  Find Keyboard Manager
+@@:
+mov esi, .keyboardStr
+call find_tid
+cmp eax, 0
+jne @f
+cmp ebx, 0
+jne @f
+
+event "Keyboard Not Found"
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+jmp @b
+
+; Keyboard found
+;   Ask it to send input
+@@:
+push eax
+push ebx
+@@:
+mov eax, [timer]
+int INT_SLEEP
+
+mov ebx, [esp]
+mov eax, [esp+4]
+mov [0x2000], dword (4 shl 20) or 4
+mov esi, 0x2000
+int INT_SHARE
+jc @b
+pop ebx
+pop eax
+
+
+;  Connect to display
+@@:
+mov esi, .terminalConnectStr
+call find_tid
+cmp eax, 0
+jne @f
+cmp ebx, 0
+jne @f
+
+event "Terminal Not Found"
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+jmp @b
+
+; Display found
+;   Get the display page from it
+@@:
+event "Terminal Connect Found"
+int INT_WAIT
+event "Connected"
+
+; Getting page from display
+mov esi, $
+mov ecx, 0
+int INT_SHARE_REQUEST
+mov edi, 0x3000
+mov ecx, 2
+int INT_SHARE_REQUEST
+
+
+;  Find display to notify to redraw
+@@:
+mov esi, .terminalStr
+call find_tid
+cmp eax, 0
+jne @f
+cmp ebx, 0
+jne @f
+
+event "Terminal Not Found"
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+jmp @b
+
+@@:
+mov [.term_low], eax
+mov [.term_high], ebx
+event "Terminal Found"
+reginfo eax, "TID Low"
+reginfo ebx, "TID High"
+
+
+
+
+
+
+event "Shell Input Parser Operational"
+
+.loop:
+event "Input Loop"
+
+mov eax, [.term_low]
+mov ebx, [.term_high]
+int INT_WAIT
+
+@@:
+mov ebx, 0x2000
+call read_byte
+cmp eax, -1
+je @f
+mov ebx, 0x3000
+call write_byte
+jmp @b
+@@:
+
+mov ecx, 0
+mov eax, [.term_low]
+mov ebx, [.term_high]
+int INT_SIGNAL
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+
+jmp .loop
+
+.term_low dd 0
+.term_high dd 0
+
+.keyboardStr db "Keyboard Ask", 0
+.terminalStr db "Terminal", 0
+.terminalConnectStr db "Terminal Connect", 0
+.tempDesc: times 200 db 0
+

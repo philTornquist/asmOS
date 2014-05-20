@@ -1,0 +1,68 @@
+terminal:
+mov esi, .threadDesc
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+
+mov eax, .shareOUTbuffer
+mov ecx, 0
+int INT_START_THREAD
+
+
+mov [0x2000], dword (4 shl 20) or 4
+
+.lockWritingToOUT:
+mov esi, $
+mov ebx, 11b
+int INT_SIGNAL
+
+int INT_WAIT
+
+event "Writing Output"
+
+@@:
+mov ebx, 0x2000
+call read_byte
+cmp eax, -1
+je @f
+call PrintChar
+jmp @b
+@@:
+
+jmp .lockWritingToOUT
+
+
+
+.shareOUTbuffer:
+mov esp, 0x500
+mov esi, .threadDesc_share
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+
+@@:
+mov esi, $
+mov ebx, 11b
+int INT_SIGNAL
+
+event "Term Signaled"
+push eax
+push ebx
+
+mov eax, [timer]
+int INT_SLEEP
+event "Sharing"
+pop ebx
+pop eax
+mov esi, 0x2000
+int INT_SHARE
+event "Shared"
+jmp @b
+
+
+
+
+.threadDesc db "Terminal", 0
+.threadDesc_share db "Terminal Connect",0

@@ -1,0 +1,136 @@
+WaitForShareHandler:
+event "WAIT FOR SHARE"
+reginfo ecx, "Options"
+
+mov ebp, esp
+
+
+mov ebx, [running_thread]
+mov eax, [ebx+Thread.sharing]
+
+cmp eax, 0
+je .blockNoRequests
+
+test ecx, 1
+jnz .declineRequest
+test ecx, 2
+jz .getShareRequest
+
+.acceptRequest:
+reginfo edi, "Mapping Address"
+;  Add page to directory
+
+; Get sharing thread's page directory
+mov edx, [eax+Thread.pagedir]
+reginfo edx, "Thread Directory"
+or edx, 00000111b
+mov [TEMP_ENTRY], edx
+invlpg [T]
+
+; Find index into page directory
+mov edx, [eax+Thread.sharePage]
+shr edx, 22
+
+; Get sharing thread's page table
+mov edx, [T+edx*4]
+reginfo edx, "Thread Page"
+or edx, 00000111b
+mov [TEMP_ENTRY], edx
+invlpg [T]
+
+; Get index into page table
+mov edx, [eax+Thread.sharePage]
+shr edx, 12
+and edx, (1 shl 10) - 1
+
+; Get physical address of page
+mov edx, [T+edx*4]
+reginfo edx, "Page to be Shared"
+
+; Load thread's page directory
+mov ecx, cr3
+reginfo ecx, "Map Directory"
+or ecx, 00000111b
+mov [TEMP_ENTRY], ecx
+invlpg [T]
+
+mov ecx, edi
+shr ecx, 22
+reginfo ecx, "Map Directory Index"
+
+; Load thread's page table
+mov ecx, [T+ecx*4]
+cmp ecx, 0
+jne .hasPageTable
+
+push eax
+push ebx
+push edx
+push esi
+push edi
+push esp
+push ebp
+call AllocPage
+mov ecx, eax
+
+reginfo eax, "New page table"
+
+; Add new page table
+or ecx, 00000111b
+mov eax, edi
+shr eax, 22
+mov [T+eax*4], ecx
+
+pop ebp
+pop esp
+pop edi
+pop esi
+pop edx
+pop ebx
+pop eax
+
+.hasPageTable:
+reginfo ecx, "Map Table"
+mov [TEMP_ENTRY], ecx
+invlpg [T]
+
+mov ecx, edi
+shr ecx, 12
+and ecx, (1 shl 10) - 1
+reginfo ecx, "Map Page Index"
+
+mov [T+ecx*4], edx
+invlpg [edi]
+
+.declineRequest:
+reginfo eax, "Handled Request"
+
+push ebx
+push eax
+mov ebx, eax
+call QueueThread
+pop eax
+pop ebx
+
+mov eax, [eax+Thread.next]
+mov [ebx+Thread.sharing], eax
+;cmp eax, 0
+;jnz .getShareRequest
+iret
+
+.blockNoRequests:
+reginfo 0, "No requests"
+mov [ebp+Iret.eip], esi
+
+lea edx, [ebx+Thread.sharing]
+mov [ebx+Thread.end_sharing], edx
+
+mov eax, [ebx+Thread.next]
+mov cx, BLOCK_WAIT_PAGE
+jmp stopThread
+
+.getShareRequest:
+mov ebx, [eax+Thread.sharePage]
+reginfo eax, "Request from"
+reginfo ebx, "With Address"
+iret

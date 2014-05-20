@@ -1,0 +1,14 @@
+macro debug reg
+{
+	displayValue $
+	display ": DEBUG"
+	display 13,10
+	push $
+	mov eax, reg
+	mov ebx, 55
+	mov edx, 16
+	mov cl, 0
+	mov ch, 15
+	call DrawNumber
+	jmp stopSystem
+}

@@ -1,0 +1,53 @@
+showMemoryMap:
+
+xor ecx, ecx
+xor esi, esi
+mov edx, 10
+
+.loop:
+mov ebx, 0
+push ecx
+push esi
+push ebx
+push edx
+mov eax, [0x7e00+KERNEL_VIRTUAL_ADDRESS+esi]
+mov cx, 15
+call DrawNumber
+
+pop edx
+pop ebx
+pop esi
+
+add ebx, 50
+
+push esi
+push ebx
+push edx
+
+mov eax, [0x7e00+KERNEL_VIRTUAL_ADDRESS+esi+8]
+mov cx, 15
+call DrawNumber
+
+pop edx
+pop ebx
+pop esi
+
+add ebx, 50
+
+push esi
+push ebx
+push edx
+
+mov eax, [0x7e00+KERNEL_VIRTUAL_ADDRESS+esi+16]
+mov cx, 15
+call DrawNumber
+
+pop edx
+pop ebx
+pop esi
+pop ecx
+add edx, 8
+inc ecx
+add esi, 24
+cmp cx, word[memory_map_count+KERNEL_VIRTUAL_ADDRESS]
+jl .loop

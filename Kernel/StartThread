@@ -1,0 +1,28 @@
+StartThread_eax_EBX_ecx_edx_edi_esi_ebp_esp:
+
+event "Starting Thread"
+printThread
+
+mov [running_thread], eax
+
+mov [ebp+Iret.ss], dword 0x23
+mov ebx, [eax+Thread.stack]
+mov [ebp+Iret.stack], ebx
+mov ebx, [eax+Thread.flags]
+mov [ebp+Iret.flags], ebx
+mov [ebp+Iret.cs], dword 0x1B
+mov ebx, [eax+Thread.instruction]
+mov [ebp+Iret.eip], ebx
+
+mov ebx, [eax+Thread.pagedir]
+mov cr3, ebx
+
+push eax
+mov eax, ' '
+mov cx, 15
+mov ebx, 312
+mov edx, 0
+call DrawChar
+pop eax
+
+ret

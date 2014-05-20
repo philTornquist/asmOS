@@ -1,0 +1,25 @@
+dividebyzeroExceptionMSG db 'Divide By Zero', 0
+debugExceptionMSG db 'Debug', 0
+nonmaskableinterruptExceptionMSG db 'Non Maskable Interrupt', 0
+breakpointExceptionMSG db 'Breakpoint Exception', 0
+intodetectedoverflowExceptionMSG db 'Into Detected Overflow', 0
+outofboundsExceptionMSG db 'Out Of Bounds Exception', 0
+invalidopcodeExceptionMSG db 'Invalid Opcode', 0
+nocoprocessorExceptionMSG db 'No Coprocessor', 0
+doublefaultExceptionMSG db 'Double Fault', 0
+coprocessorsegmentoverrunExceptionMSG db 'Coprocessor Segment Overrun', 0
+badtssExceptionMSG db 'Bad TSS', 0
+segmentnotpresentExceptionMSG db 'Segment Not Present', 0
+stackfaultExceptionMSG db 'Stack Fault', 0
+generalprotectionfaultExceptionMSG db 'General Protection Fault', 0
+pagefaultExceptionMSG db 'Page Fault', 0
+unknowninterruptExceptionMSG db 'Unknown Interrupt', 0
+coprocessorfaultExceptionMSG db 'Coprocessor Fault', 0
+alignmentcheckExceptionMSG db 'Alignment Check', 0
+machinecheckExceptionMSG db 'Machine Check', 0
+reservedExceptionMSG db 'Reserved', 0
+
+welcomeMSG db 'Welcome', 0
+usermodeMSG db 'UserMode', 0
+
+haltedMSG db 'HALTED', 0

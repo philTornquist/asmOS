@@ -1,0 +1,32 @@
+macro IntHandler intno
+{
+Handler_Int_#intno:
+cli
+event "Interrupt "#`intno
+pusha
+lea ebp, [esp+0x20]
+
+mov eax, [handlers + 8*intno]
+mov ebx, [handlers + 8*intno +4]
+jmp ExternHandler
+Default_Handler_#intno:
+}
+
+macro StartHandler
+{
+align 4096
+_HANDLER_SAVE = $
+org T
+}
+
+macro EndHandler
+{
+org _HANDLER_SAVE + ($ - T)
+}
+
+macro AddHandler intno
+{
+mov eax, intno
+mov esi, _HANDLER_SAVE
+int 0x4E
+}

@@ -1,0 +1,13 @@
+macro printThread
+{
+reginfo eax, "Thread"
+reginfo [eax+Thread.tid_low], "TID Low"
+reginfo [eax+Thread.tid_high], "TID High"
+if LOG_THREAD_DETAILS | LOG_ALL = 1
+reginfo [eax+Thread.stack], "Stack"
+reginfo [eax+Thread.instruction], "IP"
+reginfo [eax+Thread.pagedir], "Page Directory"
+reginfo [eax+Thread.end_waiting], "Waiting End"
+displayQueue [eax+Thread.waiting], [eax+Thread.end_waiting]
+end if
+}

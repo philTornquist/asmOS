@@ -1,0 +1,18 @@
+DrawString_EAX_EBX_eCX_EDX_EDI_ESI_ebp_esp: ; esi=stringPointer, ebx=x, edx=y, ch=color, cl=backcolor
+
+lodsb
+cmp al, 0
+je .finish
+
+push ebx
+push edx
+
+call DrawChar
+pop edx
+pop ebx
+add ebx, 6
+
+jmp DrawString
+
+.finish:
+ret

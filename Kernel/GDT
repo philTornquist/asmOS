@@ -1,0 +1,12 @@
+db 0, 0, 0, 0, 0, 0, 0, 0  ; null entry
+db 0xFF, 0xFF, 0x00, 0x00, 0x00, 10011010b, 11001111b, 0x00 ; code segment
+db 0xFF, 0xFF, 0x00, 0x00, 0x00, 10010010b, 11001111b, 0x00 ; data segment
+db 0xFF, 0xFF, 0x00, 0x00, 0x00, 11111010b, 11001111b, 0x00 ; ring 3 code
+db 0xFF, 0xFF, 0x00, 0x00, 0x00, 11110010b, 11001111b, 0x00 ; ring 3 data
+dw __TSS__END - __TSS__START, __TSS__LOW_BASE
+db __TSS__MID_BASE, 10001001b, 01000000b
+db __TSS__HIGH_BASE
+
+__TSS__LOW_BASE  =  (TSS and 0xFFFF)
+__TSS__MID_BASE  = ((TSS and 0x00FF0000) shr 0x10)
+__TSS__HIGH_BASE = ((TSS and 0xFF000000) shr 0x18)

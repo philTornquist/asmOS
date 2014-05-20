@@ -1,0 +1,75 @@
+IDT_Entry DivideByZeroHandler					,0x8E
+IDT_Entry DebugHandler							,0x8E
+IDT_Entry NonMaskableInterruptHandler			,0x8E
+IDT_Entry BreakpointHandler						,0x8E
+IDT_Entry IntoDetectedOverflowHandler			,0x8E
+IDT_Entry OutOfBoundsHandler					,0x8E
+IDT_Entry InvalidOpcodeHandler					,0x8E
+IDT_Entry NoCoprocessorHandler					,0x8E
+IDT_Entry DoubleFaultHandler					,0x8E
+IDT_Entry CoprocessorSegmentOverrunHandler		,0x8E
+IDT_Entry BadTSSHandler							,0x8E
+IDT_Entry SegmentNotPresentHandler				,0x8E
+IDT_Entry StackFaultHandler						,0x8E
+IDT_Entry GeneralProtectionFaultHandler			,0x8E
+IDT_Entry PageFaultHandler						,0x8E
+IDT_Entry UnknownInterruptHandler				,0x8E
+IDT_Entry CoprocessorFaultHandler				,0x8E
+IDT_Entry AlignmentCheckHandler					,0x8E
+IDT_Entry MachineCheckHandler					,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry ReservedExceptionHandler				,0x8E
+IDT_Entry TimerHandler							,0x8E
+IDT_Entry Handler_Int_0x22						,0x8E
+
+times 0x160 db 0
+
+IDT_Entry InstallHandler						,11101111b
+IDT_Entry StartThreadHandler				,11101111b
+IDT_Entry ShareHandler							,11101111b
+IDT_Entry SleepHandler							,11101111b
+IDT_Entry SignalHandler							, 11101111b
+IDT_Entry WaitForHandler						, 11101111b
+IDT_Entry WaitForShareHandler				, 11101111b
+IDT_Entry ThreadInfoHandler					,11101111b
+
+IntHandler 0x22
+event "Default 0x22"
+mov al, 0x20
+out 0x20, al	; Send EOI acknolegement the interrupt has been handled
+out 0xA0, al
+ret
+
+ExternHandler:
+reginfo eax, "Handler call"
+reginfo ebx, "Handler Thread"
+cmp ebx, 0
+je .ignore
+
+or eax, 00000111b
+mov [TEMP_ENTRY], eax
+invlpg [T]
+
+push ebx
+call T
+pop ebx
+mov eax, ebx
+call QueueThread
+popa
+iret
+
+.ignore:
+call eax
+popa
+iret

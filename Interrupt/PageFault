@@ -1,0 +1,68 @@
+PageFaultHandler:
+cli
+event "PAGE FAULT"
+
+pusha
+
+reginfo cr2, "Address Acessed"
+reginfo cr3, "Page Directory"
+reginfo [esp+8*4], "Error Code"
+
+;edx>page table index
+mov edx, cr2
+;ecx>page directory index
+mov ecx, cr2
+
+shr edx, 12
+and edx, 0x3FF
+
+shr ecx, 22
+
+reginfo ecx, "Directory Index"
+reginfo edx, "Page Index"
+
+event "Adding Page to Thread"
+
+mov eax, cr3
+or eax, 00000000111b
+mov [TEMP_ENTRY], eax
+invlpg [T]
+
+mov eax, [T+ecx*4]
+reginfo eax, "Loaded Page Table"
+cmp eax, 0
+jne .hasPageTable
+
+;---Create a new page table---
+push edx
+push ecx
+call AllocPage
+reginfo eax, "Created new Page Table"
+pop ecx
+pop edx
+
+or eax, 000000000111b
+mov [T+ecx*4], eax
+
+.hasPageTable:
+reginfo eax, "Page Table Address"
+mov [TEMP_ENTRY], eax
+invlpg [T]
+
+;---Create a new page entry---
+push edx
+push ecx
+call AllocPage
+reginfo eax, "Added Page to Thread"
+pop ecx
+pop edx
+
+or eax, 000000000111b
+mov [T+edx*4], eax
+
+mov eax, cr2
+invlpg [eax]
+
+popa
+add esp, 4
+iret

@@ -1,0 +1,5 @@
+macro Tinc file, log
+{
+LOGGING = log or LOG_TESTS
+include file
+}

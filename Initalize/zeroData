@@ -1,0 +1,2 @@
+event "Zeroing Memory Manager"
+memset 0, MEMORY_MANAGER_BITMAP, END_MEMORY_MANAGER_BITMAP

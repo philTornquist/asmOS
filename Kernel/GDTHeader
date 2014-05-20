@@ -1,0 +1,4 @@
+__GDT_Header:
+
+dw __GDT__END - __GDT__START - 1
+dd __GDT__START

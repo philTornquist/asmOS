@@ -1,0 +1,27 @@
+GetThreadWithTID:
+
+mov esi, tid_search_tree
+
+.treeGetLoop:
+mov edx, [esi]
+cmp edx, 0
+je .noEntry
+cmp ebx, [edx+Thread.tid_high]
+jg .treeGreater
+jl .treeLess
+cmp eax, [edx+Thread.tid_low]
+jg .treeGreater
+jl .treeLess
+mov eax, edx
+ret
+
+.treeGreater:
+lea esi, [edx+Thread.child_right]
+jmp .treeGetLoop
+
+.treeLess:
+lea esi, [edx+Thread.child_left]
+jmp .treeGetLoop
+
+.noEntry:
+ret

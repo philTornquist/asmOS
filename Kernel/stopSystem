@@ -1,0 +1,4 @@
+stopSystem:
+	event "HALTED"
+	cli
+	hlt

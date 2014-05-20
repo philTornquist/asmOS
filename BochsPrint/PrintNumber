@@ -1,0 +1,30 @@
+PrintNumber_eax_EBX_ECX_EDX_edi_ESI_ebp_esp: ; eax=number
+
+push eax
+xor ebx, ebx
+
+.loopDiv:
+xor edx, edx
+mov ecx, 16
+div ecx
+cmp edx, 10
+jl .addOffset
+add edx, 0x07
+
+.addOffset:
+add edx, 0x30
+push edx
+inc ebx
+cmp ebx, 8
+jl .loopDiv
+mov ecx, [esp+ebx*4+4]
+mov esi, [esp+ebx*4+8]
+
+.loopPrint:
+pop eax
+out 0xE9, al
+dec ebx
+jnz .loopPrint
+
+pop eax
+ret

@@ -1,0 +1,27 @@
+read_byte: ;ebx=bufferpage 
+
+mov edx, [ebx]
+mov esi, edx
+shr esi, 20
+
+mov edi, edx
+and edi, 111111111111b
+
+and edx, not (111111111111b shl 20)
+
+and esi, 111111111111b
+jnz .notZeroAddr
+add edi, 4
+.notZeroAddr:
+mov eax, -1
+cmp edi, esi
+je @f
+mov al, [esi +ebx]
+inc esi
+@@:
+
+shl esi, 20
+or edx, esi
+mov [ebx], edx
+
+ret

@@ -1,0 +1,12 @@
+PrintString_EAX_ebx_ecx_edx_edi_ESI_ebp_esp: ; esi=stringPointer
+
+lodsb
+cmp al, 0
+je .finish
+
+out 0xe9, al
+
+jmp PrintString
+
+.finish:
+ret

@@ -1,0 +1,19 @@
+timer						dd 0
+running_thread				dd 0
+running_queue_end			dd 0
+free_thread_data_stack		dd 0
+
+tid_search_tree dd 0
+last_tid: dq 0
+
+sleep_queue dd 0
+sleep_queue_end dd sleep_queue
+
+memory_manager_superpages	dd 32
+
+last_interrupt				db 0
+
+keyboard_thread dd 0
+
+handlers:
+times 35 dq 0

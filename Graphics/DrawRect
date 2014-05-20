@@ -1,0 +1,56 @@
+DrawRect_EAX_EBX_ECX_EDX_EDI_ESI_ebp_esp: ; esi=color, ecx=xcoord, eax=ycoord, ebx=width, edx=height
+
+.testXCoord:
+cmp ecx, 0
+jge .testYCoord
+add ebx, ecx
+xor ecx, ecx
+
+.testYCoord:
+cmp eax, 0
+jge .testWidth
+add ecx, eax
+xor eax, eax
+
+.testWidth:
+add ebx, edx
+cmp ebx, 320
+jle .testHeight
+mov ebx, 320
+
+.testHeight:
+add edx, eax
+cmp edx, 200
+jle .ready
+mov edx, 200
+
+.ready:
+sub ebx, ecx
+sub edx, eax
+cmp ebx, 0
+jle .finish
+cmp edx, 0
+jle .finish
+
+mov edi, edx  ;compute start address
+mov edx, 320
+mul edx
+mov edx, edi
+mov edi, ecx
+add edi, eax
+add edi, VGA_MEMORY
+mov eax, esi
+
+.draw:
+mov ecx, ebx
+
+.lineloop:
+mov [edi+ecx], al
+loop .lineloop
+
+add edi, 320
+dec edx
+jnz .draw
+
+.finish:
+ret

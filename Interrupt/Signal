@@ -1,0 +1,58 @@
+SignalHandler: 
+cli
+event "SIGNAL"
+
+pusha
+lea ebp, [esp+8*4]
+
+mov ecx, [running_thread]
+mov eax, [ecx+Thread.waiting]
+cmp eax, 0
+je .nothingToQueue
+
+test ebx, 1
+jz .queueAll
+
+; Modify pushed eax register
+mov ebx, [eax+Thread.tid_high]
+mov [esp+4*4], ebx
+mov ebx, [eax+Thread.tid_low]
+mov [esp+7*4], ebx
+
+mov ebx, eax
+mov edx, [eax+Thread.next]
+mov [ecx+Thread.waiting], edx
+cmp edx, 0
+je .emptyWaitingQueue
+mov [eax+Thread.next], dword 0
+jmp .queueThread
+
+.queueAll:
+mov ebx, [ecx+Thread.end_waiting]
+mov [ecx+Thread.waiting], dword 0
+
+.emptyWaitingQueue:
+lea edx, [ecx+Thread.waiting]
+mov [ecx+Thread.end_waiting], edx
+
+.queueThread:
+displayQueue eax, ebx
+call QueueThread
+jmp .return
+
+.nothingToQueue:
+test ebx, 2
+jz .return
+mov [ebp+Iret.eip], esi
+mov esp, ebp
+mov ebx, ecx
+mov eax, [ebx+Thread.next]
+mov [ebx+Thread.next], dword 0
+mov cx, 0x52
+jmp stopThread
+
+
+.return:
+popa
+
+iret

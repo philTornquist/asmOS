@@ -1,0 +1,20 @@
+jumpToPMode:
+event "Entering Protected Mode"
+
+mov ax, 0x10
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+mov ss, ax
+jmp 0x08:PMode
+
+use32
+_MODE = 32
+
+PMode:
+lgdt [GDT]							; Set the GDT to the virtual address
+mov esp, SYSSTACK
+mov ebp, esp
+
+lidt [IDT]

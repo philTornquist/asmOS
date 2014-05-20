@@ -1,0 +1,29 @@
+Thread.size = 0
+macro tentry name, size
+{
+Thread.#name = Thread.size
+Thread.size = Thread.size + size
+}
+
+tentry next, 4
+tentry previous, 4
+tentry waiting, 4
+tentry end_waiting, 4
+tentry sharing, 4
+tentry end_sharing, 4
+tentry pagedir, 4
+tentry stack, 4
+tentry flags, 4
+tentry instruction, 4
+tentry block, 2
+tentry priority, 2
+tentry regstate, 4
+tentry uptime, 4
+tentry sleepTil, 4
+tentry sharePage, 4
+tentry tid_low, 4
+tentry tid_high, 4
+tentry parent, 4
+tentry child_left, 4
+tentry child_right, 4
+tentry description, 512-Thread.size

@@ -1,0 +1,27 @@
+QueueThread_eax_EBX_ECX_edx_edi_esi_ebp_esp: ; eax=thread pointer ebx=end thread queue ebp=iret stack location
+
+event "Queuing Threads"
+displayQueue eax, ebx
+
+mov [eax+Thread.block], word 0
+mov ecx, [running_thread]
+cmp ecx, 0
+jz .startThread
+
+mov ecx, [running_queue_end]
+mov [ecx+Thread.next], eax
+mov [running_queue_end], ebx
+
+jmp .keepRunningCurrentThread
+
+.startThread:
+
+mov [running_thread], eax
+mov [running_queue_end], ebx
+call StartThread
+
+
+.keepRunningCurrentThread:
+displayQueue [running_thread], [running_queue_end]
+
+ret

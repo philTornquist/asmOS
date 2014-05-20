@@ -1,0 +1,50 @@
+TimerHandler: ; 0x31 interrupt handler
+cli
+
+pusha
+lea ebp, [esp+8*4]
+
+mov ecx, [timer]
+inc ecx
+mov [timer], ecx
+
+push ecx
+
+mov eax, [sleep_queue]
+cmp eax, 0
+je .nothingToQueue
+cmp ecx, [eax+Thread.sleepTil]
+jl .nothingToQueue
+
+mov ebx, eax
+mov edx, [eax+Thread.next]
+
+.enqueueLoop:
+cmp edx, 0
+je .queueThreads
+cmp ecx, [edx+Thread.sleepTil]
+jl .queueThreads
+mov ebx, edx
+mov edx, [edx+Thread.next]
+jmp .enqueueLoop
+
+.queueThreads:
+mov [sleep_queue], edx
+mov [ebx+Thread.next], dword 0
+call QueueThread
+
+.nothingToQueue:
+
+pop eax
+
+mov edx, 0
+mov ebx, 260
+mov cl, 0
+mov ch, 15
+call DrawNumber
+
+mov al, 0x20
+out 0x20, al	; Send EOI acknolegement the interrupt has been handled
+
+popa
+iret

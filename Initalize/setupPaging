@@ -1,0 +1,27 @@
+setupPaging:
+event "Setting up Paging"
+
+memset 0, PAGE_DIRECTORY, PAGE_DIRECTORY+0x1000
+memset 0, PAGE_TABLE, PAGE_TABLE + 0x1000
+memset 0, THREAD_TABLE, THREAD_TABLE+0x1000
+
+mov eax, PAGE_TABLE
+or eax, 00000111b
+mov [PAGE_DIRECTORY], eax ; Identity Page
+mov [PAGE_DIRECTORY + (KERNEL_VIRTUAL_PAGE * 4)], eax
+
+mov eax, THREAD_TABLE
+or eax, 00000111b
+mov [PAGE_DIRECTORY + (THREAD_VIRTUAL_PAGE * 4)], eax
+
+xor eax, eax
+xor ebx, ebx
+
+.loop:
+mov ecx, ebx
+or ecx, 00000111b
+mov [PAGE_TABLE+eax*4], ecx
+add ebx, 0x1000
+inc eax
+cmp eax, 0x400
+jl .loop

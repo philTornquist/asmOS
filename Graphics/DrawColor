@@ -1,0 +1,9 @@
+DrawColor_eax_EBX_eCL_edx_edi_esi_ebp_esp: ; color=cl
+mov ebx, VGA_MEMORY
+
+.loop:
+mov [ebx], cl
+inc ebx
+cmp ebx, VGA_MEMORY + 0xFA00
+jl .loop
+ret

@@ -1,0 +1,104 @@
+VirtualMemoryTest:
+mov esi, .threadDesc
+mov cl, 0
+mov ch, Thread.description
+int INT_THREAD_INFO
+
+mov [0xDEADC0DE], dword 0xF4E5D6C7
+assertEq [0xDEADC0DE], dword 0xF4E5D6C7, "page addition test"
+
+mov [0x0], dword 0x12345678
+
+mov eax, .test1
+mov ecx, 1
+int INT_START_THREAD
+
+mov eax, .test2
+mov ecx, 1
+int INT_START_THREAD
+
+mov eax, .test3
+mov ecx, 0
+int INT_START_THREAD
+
+.loop:
+mov esi, .testloaderStr
+call FindThreadWithDescription
+cmp eax, 0
+jne .foundTestloader
+cmp ebx, 0
+jne .foundTestloader
+assertEq eax, 1, "Test Loader not found"
+
+.foundTestloader:
+
+int INT_WAIT
+jmp .loop
+
+
+
+
+
+
+.test1:
+push 0x20202020
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+
+pop eax
+push eax
+assertEq eax, 0x20202020, "stack test 1"
+
+jmp .terminate
+
+.test2:
+push 0x31313131
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+
+pop eax
+push eax
+assertEq eax, 0x31313131, "stack test 2"
+
+jmp .terminate
+
+.test3:
+push 0x74747474
+
+mov eax, [timer]
+add eax, REDRAW_TIME
+int INT_SLEEP
+
+pop eax
+push eax
+assertEq eax, 0x74747474, "stack test 3"
+
+assertEq dword [0x0], 0x12345678, "same dir test"
+
+jmp .terminate
+
+
+
+
+.terminate:
+mov esi, .threadDesc
+call FindThreadWithDescription
+cmp eax, 0
+jne .foundVMTest
+cmp ebx, 0
+jne .foundVMTest
+assertEq eax, 1, "VM Test not found"
+
+.foundVMTest:
+
+int INT_WAIT
+jmp .terminate
+
+
+.threadDesc db "Virtual Memory Test", 0
+.testloaderStr db "Test Loader", 0
+

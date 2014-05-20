@@ -1,0 +1,17 @@
+write_byte: ; ebx=buffer page al=byte
+
+mov edx, [ebx]
+mov edi, edx
+and edi, 111111111111b
+
+and edx, not 111111111111b
+jnz @f
+add edi, 4
+@@:
+mov [edi +ebx], al
+inc edi
+
+or edx, edi
+mov [ebx], edx
+
+ret

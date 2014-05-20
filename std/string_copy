@@ -1,0 +1,13 @@
+string_copy: ;esi=stringtocopy edi=copyto
+
+push eax
+.loop:
+lodsb
+stosb
+cmp al, 0
+je .ret
+jmp .loop
+
+.ret:
+pop eax
+ret

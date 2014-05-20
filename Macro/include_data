@@ -1,0 +1,6 @@
+macro include_data data, file
+{
+	__#data#__START:
+	include file
+	__#data#__END:
+}

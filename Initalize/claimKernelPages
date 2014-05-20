@@ -1,0 +1,9 @@
+claimKernelPages:
+event "Claiming Kernel Pages"
+
+.loop:
+call AllocPage
+reginfo eax, "Page Claimed by Kernel"
+cmp eax, END_OF_USED_MEMORY
+jl .loop
+call FreePage

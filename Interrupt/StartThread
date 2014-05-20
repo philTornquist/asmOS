@@ -1,0 +1,30 @@
+StartThreadHandler: ; interrupt 0x4F eax-program pointer
+cli
+event "START THREAD"
+reginfo eax, "Thread pointer"
+
+pusha
+lea ebp, [esp+8*4]
+
+push .retPoint
+push QueueThread
+jmp CreateThread
+
+;call CreateThread
+;call QueueThread
+
+.retPoint:
+
+; Replace pushed eax register
+mov ebx, [eax+Thread.tid_low]
+mov [esp+7*4], ebx
+mov ebx, [eax+Thread.tid_high]
+mov [esp+4*4], ebx
+
+mov ax, 0x23
+mov ds, ax
+mov es, ax
+mov fs, ax
+mov gs, ax
+popa
+iret 

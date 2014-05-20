@@ -1,0 +1,6 @@
+macro IDT_Entry Handler, flags
+{
+	dw (Handler and 0xFFFF), 0x08
+	db 0x00, flags
+	dw (Handler shr 0x10)
+}

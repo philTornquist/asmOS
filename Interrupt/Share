@@ -1,0 +1,42 @@
+ShareHandler:
+event "SHARE"
+reginfo eax, "Waiting on TID Low"
+reginfo ebx, "Waiting on TID High"
+reginfo esi, "Sharing Page"
+
+push esi
+call GetThreadWithTID
+reginfo eax, "Thread"
+pop esi
+
+mov ebp, [esi]
+
+mov ebp, esp
+
+mov dx, [eax+Thread.block]
+cmp dx, BLOCK_WAIT_PAGE
+jne .threadNotShareBlocked
+
+mov ebx, [running_thread]
+mov [ebx+Thread.sharePage], esi
+mov ecx, [eax+Thread.end_sharing]
+mov [ecx+Thread.next], ebx
+mov [eax+Thread.end_sharing], ebx
+
+push eax
+push ebx
+mov ebx, eax
+call QueueThread
+pop ebx
+pop eax
+
+mov eax, [ebx+Thread.next]
+mov [ebx+Thread.next], dword 0
+mov cx, BLOCK_SHARE_PAGE
+and [ebp+Iret.flags], dword not 1
+jmp stopThread
+
+.threadNotShareBlocked:
+event "Thread does not accept share requests"
+or [ebp+Iret.flags], dword 1
+iret

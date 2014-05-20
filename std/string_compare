@@ -1,0 +1,18 @@
+string_compare:
+
+.loop:
+lodsb
+cmp al, byte [edi]
+jne .notequal
+cmp al, 0
+je .equal
+inc edi
+jmp .loop
+
+.notequal:
+clc
+ret
+
+.equal:
+stc
+ret

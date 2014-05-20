@@ -1,0 +1,24 @@
+macro iretPrint
+{
+
+pop eax
+reginfo eax, "some value on stack"
+
+pop eax
+reginfo eax, "some value on stack"
+
+pop eax
+reginfo eax, "some value on stack"
+
+pop eax
+reginfo eax, "some value on stack"
+
+pop eax
+reginfo eax, "some value on stack"
+
+pop eax
+reginfo eax, "some value on stack"
+
+pop eax
+reginfo eax, "some value on stack"
+}

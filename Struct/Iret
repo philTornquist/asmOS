@@ -1,0 +1,5 @@
+Iret.eip		= 0
+Iret.cs			= 4
+Iret.flags		= 8
+Iret.stack		= 12
+Iret.ss			= 16

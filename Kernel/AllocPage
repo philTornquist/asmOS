@@ -1,0 +1,27 @@
+AllocPage_EAX_EBX_eCL_EDX_edi_esi_ebp_esp: ; returns eax-physical address
+
+event "Allocating Page"
+
+mov ebx, -1		; Counter
+
+.findFreePageBlock:
+inc ebx
+mov eax, [MEMORY_MANAGER_BITMAP +ebx*4]
+bsf ecx, eax
+jz .findFreePageBlock
+
+mov edx, 11111111111111111111111111111110b
+rol edx, cl
+and eax, edx
+
+mov [MEMORY_MANAGER_BITMAP +ebx*4], eax
+
+shl ebx, 5
+lea eax, [ebx+ecx]
+shl eax, 12
+
+reginfo eax, "Page"
+
+ret
+
+; TODO: Implement super pages

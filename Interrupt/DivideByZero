@@ -1,0 +1,9 @@
+DivideByZeroHandler:
+cli
+event "DIVIDE BY ZERO"
+
+reginfo eax, "dont know what this is yet"
+
+iretPrint
+
+jmp $

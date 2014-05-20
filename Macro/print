@@ -1,0 +1,12 @@
+macro print reg
+{
+if LOGGING = 1
+
+pusha
+mov eax, reg
+call PrintNumber
+
+popa
+
+end if
+}

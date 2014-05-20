@@ -1,0 +1,21 @@
+macro write msg
+{
+if LOGGING = 1
+
+local .next
+local .msg
+push eax
+push esi
+
+mov esi, .msg
+jmp .next
+.msg:
+	db msg, 0
+.next:
+call PrintString
+
+pop esi
+pop eax
+
+end if
+}

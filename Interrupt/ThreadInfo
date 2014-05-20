@@ -1,0 +1,94 @@
+ThreadInfoHandler: ;eax=tid low ebx=tid high cl=get or set ch=field
+cli
+pusha
+
+cmp cl, 0
+jne .getValue
+
+;  Set value
+movzx eax, ch
+mov edi, [running_thread]
+add edi, eax
+call string_copy
+
+popa
+iret
+
+
+
+
+
+
+.getValue:
+cmp eax, 0
+jne .haveTID
+cmp ebx, 0
+jne .haveTID
+mov eax, [running_thread]
+jmp .haveThread
+
+
+.haveTID:
+push ecx
+push edi
+call GetThreadWithTID
+pop edi
+pop ecx
+.haveThread:
+movzx esi, ch
+add esi, eax
+push eax
+call string_copy
+pop eax
+
+mov ebx, [eax+Thread.child_left]
+cmp ebx, 0
+jne .goAllRight
+
+.goUp:
+mov ebx, [eax+Thread.parent]
+cmp ebx, (tid_search_tree and not(512-1))
+je .resetToLastTID
+cmp eax, [ebx+Thread.child_right]
+je .goLeftThen
+mov eax, ebx
+jmp .goUp
+
+.goLeftThen:
+mov eax, [ebx+Thread.child_left]
+cmp eax, 0
+je .foundNextTID
+.goAllRight:
+mov eax, [ebx+Thread.child_right]
+cmp eax, 0
+je .foundNextTID
+mov ebx, eax
+jmp .goAllRight
+
+.foundNextTID:
+mov eax, [ebx+Thread.tid_low]
+mov ebx, [ebx+Thread.tid_high]
+jmp .setTIDToZeroIfTheTIDIsForRunningThread
+
+.resetToLastTID:
+mov eax, [last_tid]
+mov ebx, [last_tid+4]
+
+.setTIDToZeroIfTheTIDIsForRunningThread:
+mov ecx, [running_thread]
+cmp ebx, [ecx+Thread.tid_high]
+jne .getRetFinish
+cmp eax, [ecx+Thread.tid_low]
+jne .getRetFinish
+
+; Next TID is the one for this running thread
+; so return a TID of 0
+mov eax, 0
+mov ebx, 0
+
+.getRetFinish:
+mov [esp+7*4], eax
+mov [esp+4*4], ebx
+popa
+
+iret

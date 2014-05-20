@@ -1,0 +1,39 @@
+DrawNumber_eax_EBX_ECX_EDX_EDI_esi_ebp_esp: ; eax=number, ebx=x, edx=y, ch=color, cl=backcolor
+
+push eax
+push ebx
+push ecx
+push edx
+xor ebx, ebx
+
+.loopDiv:
+xor edx, edx
+mov ecx, 16
+div ecx
+cmp edx, 10
+jl .addOffset
+add edx, 0x07
+
+.addOffset:
+add edx, 0x30
+push edx
+inc ebx
+cmp ebx, 8
+jl .loopDiv
+mov ecx, [esp+ebx*4+4]
+mov esi, [esp+ebx*4+8]
+
+.loopPrint:
+pop eax
+push ebx
+mov edx, [esp+ebx*4]
+mov ebx, esi
+add esi, 6
+call DrawChar
+pop ebx
+dec ebx
+jnz .loopPrint
+
+add esp, 12
+pop eax
+ret

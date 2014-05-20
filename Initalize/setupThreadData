@@ -1,0 +1,14 @@
+setupThreadData:
+event "Setting up Thread Data"
+
+xor eax, eax
+mov ecx, MAX_THREADS
+
+.loop:
+dec cx
+mov [eax*2 + FREE_THREAD_STACK], cx
+inc eax
+cmp cx, 0
+jne .loop
+lea eax, [eax*2 + FREE_THREAD_STACK]
+mov [free_thread_data_stack], eax
